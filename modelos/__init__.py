@@ -3,5 +3,11 @@
 from modelos.entidad import Entidad
 from modelos.cliente import Cliente
 from modelos.servicio import Servicio
+from modelos.reserva import Reserva
 
-__all__ = ["Entidad", "Cliente", "Servicio"]
+__all__ = [
+    "Entidad",
+    "Cliente",
+    "Servicio",
+    "Reserva",
+]

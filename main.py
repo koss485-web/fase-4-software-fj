@@ -2,11 +2,11 @@
 Punto de entrada del Sistema Integral de Gestión Software FJ.
 
 Este archivo ejecuta simulaciones válidas e inválidas para comprobar
-clientes, reservas de salas, alquileres de equipos y asesorías.
+clientes, servicios, reservas, confirmaciones y cancelaciones.
 """
 
 from excepciones import SistemaFJError
-from modelos import Cliente
+from modelos import Cliente, Reserva
 from servicios import (
     AlquilerEquipo,
     AsesoriaEspecializada,
@@ -236,8 +236,105 @@ def probar_asesoria_invalida():
         )
 
 
+def probar_reserva_completa_valida():
+    """Procesa y confirma correctamente una reserva."""
+
+    print("\nPRUEBA 9: PROCESAMIENTO Y CONFIRMACIÓN DE RESERVA")
+
+    cliente = Cliente(
+        nombre="Ana Torres",
+        documento="1023456789",
+        correo="ana.torres@email.com",
+        telefono="3104567890",
+    )
+
+    sala = ReservaSala(
+        codigo="SAL-003",
+        nombre="Sala de reuniones",
+        tarifa_por_hora=70000,
+        capacidad=12,
+        tipo_sala="Corporativa",
+    )
+
+    reserva = Reserva(
+        codigo="RES-001",
+        cliente=cliente,
+        servicio=sala,
+        duracion=2,
+        descuento=5,
+        impuesto=19,
+    )
+
+    costo = reserva.procesar()
+    reserva.confirmar()
+
+    print(reserva)
+    print(f"Costo procesado: ${costo:,.2f}")
+    print(f"Estado final: {reserva.estado.title()}")
+
+
+def probar_cancelacion_repetida():
+    """Intenta cancelar dos veces la misma reserva."""
+
+    print("\nPRUEBA 10: CANCELACIÓN REPETIDA DE RESERVA")
+
+    try:
+        cliente = Cliente(
+            nombre="Pedro Gomez",
+            documento="1098765432",
+            correo="pedro.gomez@email.com",
+            telefono="3209876543",
+        )
+
+        equipo = AlquilerEquipo(
+            codigo="EQU-003",
+            nombre="Computador para diseño",
+            tarifa_por_dia=90000,
+            tipo_equipo="Estación de trabajo",
+            marca="Dell",
+            estado_equipo="excelente",
+        )
+
+        reserva = Reserva(
+            codigo="RES-002",
+            cliente=cliente,
+            servicio=equipo,
+            duracion=3,
+            impuesto=19,
+        )
+
+        reserva.procesar()
+        reserva.confirmar()
+        reserva.cancelar()
+
+        print(
+            "Primera cancelación correcta. "
+            f"Estado: {reserva.estado.title()}"
+        )
+
+        # Esta segunda cancelación genera el error esperado.
+        reserva.cancelar()
+
+    except SistemaFJError as error:
+        logger.error(
+            "Error controlado en cancelación de reserva: %s",
+            error,
+        )
+        print(f"Resultado esperado: {error}")
+
+    else:
+        logger.info(
+            "La cancelación repetida no produjo errores."
+        )
+
+    finally:
+        logger.info(
+            "Finalizó la prueba de cancelación repetida."
+        )
+
+
 def ejecutar_aplicacion():
-    """Ejecuta secuencialmente las simulaciones del sistema."""
+    """Ejecuta secuencialmente las diez simulaciones."""
 
     logger.info("Inicio de la aplicación Software FJ.")
 
@@ -255,6 +352,8 @@ def ejecutar_aplicacion():
         probar_alquiler_equipo_invalido()
         probar_asesoria_valida()
         probar_asesoria_invalida()
+        probar_reserva_completa_valida()
+        probar_cancelacion_repetida()
 
     except SistemaFJError as error:
         logger.error(
@@ -274,7 +373,7 @@ def ejecutar_aplicacion():
 
     else:
         logger.info(
-            "Las pruebas finalizaron correctamente."
+            "Las diez pruebas finalizaron correctamente."
         )
 
     finally:
@@ -285,4 +384,3 @@ def ejecutar_aplicacion():
 
 if __name__ == "__main__":
     ejecutar_aplicacion()
-    
