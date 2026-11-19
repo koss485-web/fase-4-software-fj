@@ -4,6 +4,7 @@ Punto de entrada del Sistema Integral de Gestión Software FJ.
 
 from excepciones import SistemaFJError
 from modelos import Cliente
+from servicios import ReservaSala
 from utilidades.configuracion_logging import configurar_logging
 
 
@@ -38,7 +39,10 @@ def probar_cliente_invalido():
         )
 
     except SistemaFJError as error:
-        logger.error("Error controlado al crear el cliente: %s", error)
+        logger.error(
+            "Error controlado al crear el cliente: %s",
+            error,
+        )
         print(f"Resultado esperado: {error}")
 
     else:
@@ -48,8 +52,61 @@ def probar_cliente_invalido():
         logger.info("Finalizó la prueba del cliente inválido.")
 
 
+def probar_reserva_sala_valida():
+    """Crea una sala y calcula correctamente su costo."""
+
+    print("\nPRUEBA 3: RESERVA DE SALA VÁLIDA")
+
+    sala = ReservaSala(
+        codigo="SAL-001",
+        nombre="Sala ejecutiva",
+        tarifa_por_hora=50000,
+        capacidad=20,
+        tipo_sala="Ejecutiva",
+    )
+
+    costo = sala.calcular_costo(
+        horas=3,
+        descuento=10,
+        impuesto=19,
+    )
+
+    print(sala)
+    print(f"Costo total: ${costo:,.2f}")
+
+
+def probar_reserva_sala_invalida():
+    """Intenta calcular una reserva con duración negativa."""
+
+    print("\nPRUEBA 4: RESERVA DE SALA INVÁLIDA")
+
+    try:
+        sala = ReservaSala(
+            codigo="SAL-002",
+            nombre="Sala de capacitación",
+            tarifa_por_hora=40000,
+            capacidad=30,
+            tipo_sala="Capacitación",
+        )
+
+        sala.calcular_costo(horas=-2)
+
+    except SistemaFJError as error:
+        logger.error(
+            "Error controlado en reserva de sala: %s",
+            error,
+        )
+        print(f"Resultado esperado: {error}")
+
+    else:
+        logger.info("La reserva de sala fue procesada correctamente.")
+
+    finally:
+        logger.info("Finalizó la prueba de reserva de sala inválida.")
+
+
 def ejecutar_aplicacion():
-    """Ejecuta las primeras simulaciones del sistema."""
+    """Ejecuta las simulaciones del sistema."""
 
     logger.info("Inicio de la aplicación Software FJ.")
 
@@ -61,6 +118,8 @@ def ejecutar_aplicacion():
 
         probar_cliente_valido()
         probar_cliente_invalido()
+        probar_reserva_sala_valida()
+        probar_reserva_sala_invalida()
 
     except SistemaFJError as error:
         logger.error("Error controlado del sistema: %s", error)
@@ -68,10 +127,13 @@ def ejecutar_aplicacion():
 
     except Exception:
         logger.exception("Ocurrió un error inesperado.")
-        print("Ocurrió un error inesperado. Consulte el archivo de logs.")
+        print(
+            "Ocurrió un error inesperado. "
+            "Consulte el archivo de logs."
+        )
 
     else:
-        logger.info("Las pruebas iniciales finalizaron correctamente.")
+        logger.info("Las pruebas finalizaron correctamente.")
 
     finally:
         logger.info("Finalizó la ejecución de la aplicación.")
