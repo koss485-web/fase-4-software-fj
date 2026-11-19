@@ -1,10 +1,14 @@
 """
 Punto de entrada del Sistema Integral de Gestión Software FJ.
+
+Este archivo ejecuta simulaciones válidas e inválidas para comprobar
+el funcionamiento del manejo de clientes, la reserva de salas y el
+alquiler de equipos.
 """
 
 from excepciones import SistemaFJError
 from modelos import Cliente
-from servicios import ReservaSala
+from servicios import AlquilerEquipo, ReservaSala
 from utilidades.configuracion_logging import configurar_logging
 
 
@@ -46,10 +50,14 @@ def probar_cliente_invalido():
         print(f"Resultado esperado: {error}")
 
     else:
-        logger.info("El cliente de prueba fue creado correctamente.")
+        logger.info(
+            "El cliente de prueba fue creado correctamente."
+        )
 
     finally:
-        logger.info("Finalizó la prueba del cliente inválido.")
+        logger.info(
+            "Finalizó la prueba del cliente inválido."
+        )
 
 
 def probar_reserva_sala_valida():
@@ -99,14 +107,77 @@ def probar_reserva_sala_invalida():
         print(f"Resultado esperado: {error}")
 
     else:
-        logger.info("La reserva de sala fue procesada correctamente.")
+        logger.info(
+            "La reserva de sala fue procesada correctamente."
+        )
 
     finally:
-        logger.info("Finalizó la prueba de reserva de sala inválida.")
+        logger.info(
+            "Finalizó la prueba de reserva de sala inválida."
+        )
+
+
+def probar_alquiler_equipo_valido():
+    """Crea un equipo y calcula correctamente su alquiler."""
+
+    print("\nPRUEBA 5: ALQUILER DE EQUIPO VÁLIDO")
+
+    equipo = AlquilerEquipo(
+        codigo="EQU-001",
+        nombre="Computador portátil empresarial",
+        tarifa_por_dia=80000,
+        tipo_equipo="Computador portátil",
+        marca="Lenovo",
+        estado_equipo="excelente",
+    )
+
+    costo = equipo.calcular_costo(
+        dias=5,
+        descuento=5,
+        impuesto=19,
+    )
+
+    print(equipo)
+    print(f"Costo total: ${costo:,.2f}")
+
+
+def probar_alquiler_equipo_invalido():
+    """Intenta alquilar un equipo durante cero días."""
+
+    print("\nPRUEBA 6: ALQUILER DE EQUIPO INVÁLIDO")
+
+    try:
+        equipo = AlquilerEquipo(
+            codigo="EQU-002",
+            nombre="Proyector multimedia",
+            tarifa_por_dia=60000,
+            tipo_equipo="Proyector",
+            marca="Epson",
+            estado_equipo="bueno",
+        )
+
+        equipo.calcular_costo(dias=0)
+
+    except SistemaFJError as error:
+        logger.error(
+            "Error controlado en alquiler de equipo: %s",
+            error,
+        )
+        print(f"Resultado esperado: {error}")
+
+    else:
+        logger.info(
+            "El alquiler del equipo se procesó correctamente."
+        )
+
+    finally:
+        logger.info(
+            "Finalizó la prueba de alquiler de equipo inválido."
+        )
 
 
 def ejecutar_aplicacion():
-    """Ejecuta las simulaciones del sistema."""
+    """Ejecuta secuencialmente las simulaciones del sistema."""
 
     logger.info("Inicio de la aplicación Software FJ.")
 
@@ -120,23 +191,34 @@ def ejecutar_aplicacion():
         probar_cliente_invalido()
         probar_reserva_sala_valida()
         probar_reserva_sala_invalida()
+        probar_alquiler_equipo_valido()
+        probar_alquiler_equipo_invalido()
 
     except SistemaFJError as error:
-        logger.error("Error controlado del sistema: %s", error)
+        logger.error(
+            "Error controlado del sistema: %s",
+            error,
+        )
         print(f"Error controlado: {error}")
 
     except Exception:
-        logger.exception("Ocurrió un error inesperado.")
+        logger.exception(
+            "Ocurrió un error inesperado."
+        )
         print(
             "Ocurrió un error inesperado. "
             "Consulte el archivo de logs."
         )
 
     else:
-        logger.info("Las pruebas finalizaron correctamente.")
+        logger.info(
+            "Las pruebas finalizaron correctamente."
+        )
 
     finally:
-        logger.info("Finalizó la ejecución de la aplicación.")
+        logger.info(
+            "Finalizó la ejecución de la aplicación."
+        )
 
 
 if __name__ == "__main__":
