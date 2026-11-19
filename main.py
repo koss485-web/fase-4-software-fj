@@ -2,13 +2,16 @@
 Punto de entrada del Sistema Integral de Gestión Software FJ.
 
 Este archivo ejecuta simulaciones válidas e inválidas para comprobar
-el funcionamiento del manejo de clientes, la reserva de salas y el
-alquiler de equipos.
+clientes, reservas de salas, alquileres de equipos y asesorías.
 """
 
 from excepciones import SistemaFJError
 from modelos import Cliente
-from servicios import AlquilerEquipo, ReservaSala
+from servicios import (
+    AlquilerEquipo,
+    AsesoriaEspecializada,
+    ReservaSala,
+)
 from utilidades.configuracion_logging import configurar_logging
 
 
@@ -176,6 +179,63 @@ def probar_alquiler_equipo_invalido():
         )
 
 
+def probar_asesoria_valida():
+    """Crea una asesoría y calcula correctamente su costo."""
+
+    print("\nPRUEBA 7: ASESORÍA ESPECIALIZADA VÁLIDA")
+
+    asesoria = AsesoriaEspecializada(
+        codigo="ASE-001",
+        nombre="Asesoría en arquitectura de software",
+        tarifa_por_hora=120000,
+        especialidad="Arquitectura de software",
+        profesional="Laura Martinez",
+        modalidad="virtual",
+    )
+
+    costo = asesoria.calcular_costo(
+        horas=4,
+        descuento=10,
+        impuesto=19,
+    )
+
+    print(asesoria)
+    print(f"Costo total: ${costo:,.2f}")
+
+
+def probar_asesoria_invalida():
+    """Intenta crear una asesoría con modalidad incorrecta."""
+
+    print("\nPRUEBA 8: ASESORÍA ESPECIALIZADA INVÁLIDA")
+
+    try:
+        AsesoriaEspecializada(
+            codigo="ASE-002",
+            nombre="Asesoría en seguridad informática",
+            tarifa_por_hora=150000,
+            especialidad="Seguridad informática",
+            profesional="Carlos Ramirez",
+            modalidad="telepática",
+        )
+
+    except SistemaFJError as error:
+        logger.error(
+            "Error controlado en asesoría: %s",
+            error,
+        )
+        print(f"Resultado esperado: {error}")
+
+    else:
+        logger.info(
+            "La asesoría fue creada correctamente."
+        )
+
+    finally:
+        logger.info(
+            "Finalizó la prueba de asesoría inválida."
+        )
+
+
 def ejecutar_aplicacion():
     """Ejecuta secuencialmente las simulaciones del sistema."""
 
@@ -193,6 +253,8 @@ def ejecutar_aplicacion():
         probar_reserva_sala_invalida()
         probar_alquiler_equipo_valido()
         probar_alquiler_equipo_invalido()
+        probar_asesoria_valida()
+        probar_asesoria_invalida()
 
     except SistemaFJError as error:
         logger.error(
@@ -223,3 +285,4 @@ def ejecutar_aplicacion():
 
 if __name__ == "__main__":
     ejecutar_aplicacion()
+    
